@@ -39,7 +39,7 @@ button {
 .site-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 1.5rem;
   padding: 1.2rem clamp(1rem, 4vw, 3rem);
   color: var(--paper);
