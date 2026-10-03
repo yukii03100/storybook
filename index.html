@@ -59,7 +59,7 @@
 
           <!-- 黃色腳印互動熱區：正式圖上已有腳印時，這個按鈕會變成透明可點擊區 -->
           <button id="pawHint" class="paw-hint" type="button" hidden>
-            <img class="paw-image" src="assets/nfc-paw-icon.png" alt="">
+            <img class="paw-image" src="assets/optimized/nfc-paw-icon.png" alt="" decoding="async">
             <span class="paw-label">角色提問</span>
           </button>
         </div>
@@ -90,12 +90,12 @@
       <div class="chat-layout">
         <aside class="character-picker" aria-label="角色選擇">
           <button class="character-card active" data-role="lali" type="button">
-            <img src="assets/character-lali-pangolin.png" alt="拉利，穿山甲角色圖">
+            <img src="assets/optimized/character-lali-pangolin.png" alt="拉利，穿山甲角色圖" loading="lazy" decoding="async">
             <span>拉利</span>
             <small>穿山甲</small>
           </button>
           <button class="character-card" data-role="aban" type="button">
-            <img src="assets/character-aban-leopard-cat.png" alt="阿班，石虎角色圖">
+            <img src="assets/optimized/character-aban-leopard-cat.png" alt="阿班，石虎角色圖" loading="lazy" decoding="async">
             <span>阿班</span>
             <small>石虎</small>
           </button>
@@ -110,7 +110,7 @@
           <div class="chat-top">
             <div class="active-character">
               <div id="activeRolePortrait" class="active-role-portrait" aria-hidden="true">
-                <img id="activeRoleImage" src="assets/character-lali-pangolin.png" alt="">
+                <img id="activeRoleImage" src="assets/optimized/character-lali-pangolin.png" alt="" decoding="async">
               </div>
               <div>
               <p class="eyebrow">目前角色</p>
@@ -135,7 +135,7 @@
     <p>以淺山棲地、遊蕩犬與野生動物保育為主題的互動展示原型。</p>
   </footer>
 
-  <script src="picture-book.js?v=20261003-6"></script>
+  <script src="picture-book.js?v=20261003-7"></script>
   <script>
     document.querySelector('[data-view="action"]')?.remove();
     document.querySelector('#action')?.remove();

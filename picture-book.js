@@ -2,7 +2,7 @@ const coverPage = {
   pageNumber: "封面",
   title: "繪本封面",
   text: "請選擇閱讀方向，開始閱讀故事。",
-  image: "assets/穿山甲封面.png",
+  image: "assets/optimized/穿山甲封面.jpg",
   note: "請選擇閱讀方向：拉利～不怕！或阿班～不慌！"
 };
 
@@ -14,33 +14,33 @@ const storyPages = [
     pageNumber: "1",
     title: "拉利～不怕！",
     text: "拉利的故事從這裡開始。牠住在淺山森林裡，夜晚出門尋找食物。",
-    image: "assets/story-page-01-lali-start2.png",
+    image: "assets/optimized/story-page-01-lali-start2.jpg",
     note: "正式繪本內頁 1。"
   },
   {
     pageNumber: "2",
     title: "森林裡的拉利",
     text: "拉利想像著滿滿的蟻巢，期待今天可以找到好多食物。",
-    image: "assets/story-page-01-lali-start3.png",
+    image: "assets/optimized/story-page-01-lali-start3.jpg",
     note: "正式繪本內頁 2。"
   },
   {
     pageNumber: "3",
     title: "路上的痕跡",
     text: "熟悉的路上多了一些不屬於森林的東西，拉利開始變得小心。",
-    image: "assets/story-page-01-lali-start4.png",
+    image: "assets/optimized/story-page-01-lali-start4.jpg",
     note: "正式繪本內頁 3。"
   },
   {
     pageNumber: "4",
     title: "捕獸夾危機",
     text: "落葉底下突然彈起冰冷的夾子。這個危險讓拉利差一點就受傷。",
-    image: "assets/story-page-01-lali-start5.png",
+    image: "assets/optimized/story-page-01-lali-start5.jpg",
     hint: {
       role: "lali",
       prompt: "這個夾子是誰放的？問問拉利吧！",
       questions: ["捕獸夾為什麼危險？", "拉利受傷時會怎麼辦？", "我們可以怎麼幫忙？"],
-      pawImage: "assets/nfc-paw-icon-page04.png",
+      pawImage: "assets/optimized/nfc-paw-icon-page04.png",
       embeddedHotspot: true,
       hotspot: {
         imageRelative: true,
@@ -54,28 +54,28 @@ const storyPages = [
     pageNumber: "5",
     title: "拉利逃跑",
     text: "危險靠得太近，拉利只能縮起身體或趕快離開。一次驚嚇，就會改變牠覓食的路線。",
-    image: "assets/story-page-01-lali-start6.png",
+    image: "assets/optimized/story-page-01-lali-start6.jpg",
     note: "正式繪本內頁 5。"
   },
   {
     pageNumber: "6",
     title: "犬隻出現",
     text: "草叢裡傳來聲音，狗的氣味與吠叫讓拉利緊張起來。狗不是反派，但牠的追逐會造成壓力。",
-    image: "assets/story-page-01-lali-start7.png",
+    image: "assets/optimized/story-page-01-lali-start7.jpg",
     note: "正式繪本內頁 6。"
   },
   {
     pageNumber: "7",
     title: "追逐",
     text: "狗向前奔跑，拉利努力逃離。對野生動物來說，逃跑會消耗體力，也會讓夜晚變得不安全。",
-    image: "assets/story-page-01-lali-start8.png",
+    image: "assets/optimized/story-page-01-lali-start8.jpg",
     note: "正式繪本內頁 7。"
   },
   {
     pageNumber: "8",
     title: "交會拉頁",
     text: "拉利和阿班在葉影間相遇。牠們不是敵人，卻都在同一片淺山裡承受越來越多壓力。",
-    image: "assets/story-page-01-lali-start9.png",
+    image: "assets/optimized/story-page-01-lali-start9.jpg",
     hint: {
       role: "dog",
       prompt: "你為什麼會來到山裡？",
@@ -93,19 +93,19 @@ const storyPages = [
     pageNumber: "9",
     title: "阿班遇見狗",
     text: "阿班聽見急促的腳步聲，立刻往樹上移動。狗可能迷路或被放養，但牠仍會影響野生動物。",
-    image: "assets/story-page-01-lali-start10.png",
+    image: "assets/optimized/story-page-01-lali-start10.jpg",
     note: "正式繪本內頁 9。"
   },
   {
     pageNumber: "10",
     title: "草叢裡的動靜",
     text: "阿班停下來，仔細聽著草叢裡越來越近的腳步聲。牠必須判斷哪裡還能安全通過。",
-    image: "assets/story-page-01-lali-start11.png",
+    image: "assets/optimized/story-page-01-lali-start11.jpg",
     hint: {
       role: "aban",
       prompt: "狗靠近時，你會怎麼保護自己？",
       questions: ["狗靠近時你會害怕嗎？", "你會躲到哪裡？", "人類可以怎麼保護石虎？"],
-      pawImage: "assets/nfc-paw-icon-page10.png",
+      pawImage: "assets/optimized/nfc-paw-icon-page10.png",
       embeddedHotspot: true,
       hotspot: {
         imageRelative: true,
@@ -119,35 +119,35 @@ const storyPages = [
     pageNumber: "11",
     title: "奔跑的阿班",
     text: "阿班快速穿過路徑，牠需要連續而安靜的棲地，才能減少被追逐與干擾的風險。",
-    image: "assets/story-page-01-lali-start12.png",
+    image: "assets/optimized/story-page-01-lali-start12.jpg",
     note: "正式繪本內頁 11。"
   },
   {
     pageNumber: "12",
     title: "車燈靠近",
     text: "道路上的車燈突然亮起。淺山動物除了犬隻干擾，也面臨路殺與棲地破碎的危險。",
-    image: "assets/story-page-01-lali-start13.png",
+    image: "assets/optimized/story-page-01-lali-start13.jpg",
     note: "正式繪本內頁 12。"
   },
   {
     pageNumber: "13",
     title: "路邊等待",
     text: "阿班沿著道路邊緣移動，等待安全的時機。人類的道路讓牠的夜路變得更困難。",
-    image: "assets/story-page-01-lali-start14.png",
+    image: "assets/optimized/story-page-01-lali-start14.jpg",
     note: "正式繪本內頁 13。"
   },
   {
     pageNumber: "14",
     title: "讓夜路安全一點",
     text: "當人類願意照顧犬隻、不棄養、不放任遊蕩，也願意移除危險陷阱，淺山的夜路就能多一點安全。",
-    image: "assets/story-page-01-lali-start15.png",
+    image: "assets/optimized/story-page-01-lali-start15.jpg",
     note: "正式繪本內頁 14。"
   },
   {
     pageNumber: "15",
     title: "阿班～不慌！",
     text: "阿班的故事可以從這裡開始，從另一個方向回到同一片淺山，看看牠遇見的壓力與選擇。",
-    image: "assets/story-page-01-lali-start16.png",
+    image: "assets/optimized/story-page-01-lali-start16.jpg",
     note: "正式繪本內頁 15。"
   }
 ];
@@ -252,7 +252,7 @@ function renderPage() {
   pawHint.hidden = !page.hint;
   if (page.hint) {
     pawHint.querySelector(".paw-label").textContent = page.hint.prompt;
-    pawImage.src = page.hint.pawImage || "assets/nfc-paw-icon.png";
+    pawImage.src = page.hint.pawImage || "assets/optimized/nfc-paw-icon.png";
     pawHint.classList.toggle("embedded-hotspot", Boolean(page.hint.embeddedHotspot));
     positionPawHint(page);
   } else {
@@ -282,8 +282,8 @@ function renderPage() {
 function setReadingPath(path) {
   readingPath = path;
   coverPage.image = path === "aban"
-    ? "assets/石虎封面.png"
-    : "assets/穿山甲封面.png";
+    ? "assets/optimized/石虎封面.jpg"
+    : "assets/optimized/穿山甲封面.jpg";
   pages = path === "aban"
     ? [coverPage, ...storyPages.slice().reverse()]
     : [coverPage, ...storyPages];
@@ -354,10 +354,10 @@ function selectRole(roleKey, greeting = true) {
   activeRole = roleKey;
   activeRoleName.textContent = roles[roleKey].name;
   activeRoleImage.src = roleKey === "lali"
-    ? "assets/character-lali-pangolin.png"
+    ? "assets/optimized/character-lali-pangolin.png"
     : roleKey === "aban"
-      ? "assets/character-aban-leopard-cat.png"
-      : "assets/character-DOG-pangolin.png";
+      ? "assets/optimized/character-aban-leopard-cat.png"
+      : "assets/optimized/character-DOG-pangolin.png";
   activeRoleImage.classList.toggle("dog-character-image", roleKey === "dog");
   characterCards.forEach((card) => card.classList.toggle("active", card.dataset.role === roleKey));
   if (greeting) {
