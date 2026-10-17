@@ -890,8 +890,9 @@ body.scan-mode .chat-window {
 }
 
 .active-role-portrait img {
-  width: 112%;
-  height: 112%;
+  position: absolute;
+  max-width: none;
+  height: auto;
   object-fit: contain;
 }
 
@@ -899,13 +900,27 @@ body.scan-mode .chat-window {
   position: relative;
 }
 
-.active-role-portrait .dog-character-image {
-  position: absolute;
-  left: -38%;
-  top: -148%;
-  width: 400%;
-  max-width: none;
-  height: auto;
+.active-role-portrait img {
+  left: -8%;
+  top: -8%;
+  width: 116%;
+}
+
+.usage-status {
+  margin: 0.18rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.message.thinking {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.chat-form.is-busy button,
+.chat-form.is-busy input {
+  cursor: wait;
+  opacity: 0.68;
 }
 
 @media (max-width: 640px) {

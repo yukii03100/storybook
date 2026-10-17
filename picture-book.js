@@ -204,6 +204,7 @@ const characterCards = document.querySelectorAll(".character-card");
 const activeRoleName = document.querySelector("#activeRoleName");
 const activeRolePortrait = document.querySelector("#activeRolePortrait");
 const activeRoleImage = document.querySelector("#activeRoleImage");
+const usageStatus = document.querySelector("#usageStatus");
 const chatMessages = document.querySelector("#chatMessages");
 const chatForm = document.querySelector("#chatForm");
 const userMessage = document.querySelector("#userMessage");
@@ -353,22 +354,19 @@ function addMessage(sender, name, text) {
 function selectRole(roleKey, greeting = true) {
   activeRole = roleKey;
   activeRoleName.textContent = roles[roleKey].name;
+  activeRolePortrait.dataset.role = roleKey;
   activeRoleImage.src = roleKey === "lali"
-    ? "assets/optimized/character-lali-pangolin.png"
+    ? "assets/optimized/character-lali-head.png?v=2"
     : roleKey === "aban"
-      ? "assets/optimized/character-aban-leopard-cat.png"
-      : "assets/optimized/character-DOG-pangolin.png";
-  activeRoleImage.classList.toggle("dog-character-image", roleKey === "dog");
+      ? "assets/optimized/character-aban-head.png?v=2"
+      : "assets/optimized/character-dog-head.png?v=2";
   characterCards.forEach((card) => card.classList.toggle("active", card.dataset.role === roleKey));
   if (greeting) {
     addMessage("ai", roles[roleKey].shortName, roles[roleKey].intro);
   }
 }
 
-function callAI(role, userMessageText) {
-  // 未來 API 串接位置：
-  // 可在此改為呼叫 OpenAI Responses API 或 Gemini API，
-  // 並把 role 對應的角色設定與 userMessageText 一起送出。
+function localRoleReply(role, userMessageText) {
   const text = userMessageText.trim();
   const asksIdentity = ["你是誰", "是誰", "什麼動物", "哪一種動物", "身分", "身份"].some((keyword) => text.includes(keyword));
 
@@ -410,7 +408,113 @@ function callAI(role, userMessageText) {
   return "我會跟著氣味到處走，也會找食物和可以休息的地方。有人照顧、陪伴和帶著我行動時，我就不需要自己在山裡到處跑。";
 }
 
-function handlePawHint() {
+const dailyLimit = Number(window.STORYBOOK_DAILY_LIMIT) || 10;
+const usageStorageKey = "storybookAiDailyUsage";
+let isSending = false;
+
+function todayKey() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei" }).format(new Date());
+}
+
+function readDailyUsage() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(usageStorageKey) || "null");
+    if (saved?.date === todayKey() && Number.isFinite(saved.count)) return saved.count;
+  } catch {
+    // 儲存資料損壞時重新計算即可。
+  }
+  return 0;
+}
+
+function writeDailyUsage(count) {
+  localStorage.setItem(usageStorageKey, JSON.stringify({ date: todayKey(), count }));
+  updateUsageStatus();
+}
+
+function updateUsageStatus(serverRemaining) {
+  const remaining = Number.isFinite(serverRemaining)
+    ? Math.max(0, serverRemaining)
+    : Math.max(0, dailyLimit - readDailyUsage());
+  if (!usageStatus) return;
+  usageStatus.textContent = window.STORYBOOK_AI_ENDPOINT
+    ? `今天還可以問 ${remaining} 次`
+    : "AI 連線設定中，目前使用內建角色回覆";
+}
+
+function recentConversation() {
+  return [...chatMessages.querySelectorAll(".message:not(.thinking)")]
+    .slice(-8)
+    .map((message) => ({
+      role: message.classList.contains("user") ? "user" : "assistant",
+      content: message.querySelector("span")?.textContent || ""
+    }))
+    .filter((item) => item.content);
+}
+
+async function callAI(role, userMessageText) {
+  const endpoint = String(window.STORYBOOK_AI_ENDPOINT || "").replace(/\/$/, "");
+  if (!endpoint) return { text: localRoleReply(role, userMessageText), usedAI: false };
+
+  const used = readDailyUsage();
+  if (used >= dailyLimit) {
+    return { text: `今天的 ${dailyLimit} 次 AI 對話已經用完了，明天再來找我聊聊吧！`, usedAI: false };
+  }
+
+  const response = await fetch(`${endpoint}/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      role,
+      message: userMessageText,
+      history: recentConversation().slice(0, -1)
+    })
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (response.status === 429) {
+    writeDailyUsage(dailyLimit);
+    return { text: payload.error || `今天的 ${dailyLimit} 次 AI 對話已經用完了，明天再來找我聊聊吧！`, usedAI: false, remaining: 0 };
+  }
+  if (!response.ok || !payload.reply) throw new Error(payload.error || "AI 暫時無法回覆");
+
+  writeDailyUsage(used + 1);
+  return { text: payload.reply, usedAI: true, remaining: payload.remaining };
+}
+
+async function submitQuestion(text) {
+  if (isSending || !text.trim()) return;
+  isSending = true;
+  chatForm.classList.add("is-busy");
+  userMessage.disabled = true;
+  chatForm.querySelector("button[type='submit']").disabled = true;
+
+  const roleAtSend = activeRole;
+  addMessage("user", "讀者", text.trim());
+  const thinking = document.createElement("div");
+  thinking.className = "message ai thinking";
+  thinking.textContent = `${roles[roleAtSend].shortName}正在想一想……`;
+  chatMessages.appendChild(thinking);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  try {
+    const result = await callAI(roleAtSend, text.trim());
+    thinking.remove();
+    addMessage("ai", roles[roleAtSend].shortName, result.text);
+    updateUsageStatus(result.remaining);
+  } catch (error) {
+    thinking.remove();
+    addMessage("ai", roles[roleAtSend].shortName, `${localRoleReply(roleAtSend, text)}（AI 連線暫時中斷，先用故事內建回覆陪你聊。）`);
+    console.error(error);
+  } finally {
+    isSending = false;
+    chatForm.classList.remove("is-busy");
+    userMessage.disabled = false;
+    chatForm.querySelector("button[type='submit']").disabled = false;
+    userMessage.focus();
+  }
+}
+
+async function handlePawHint() {
   const hint = pages[currentPageIndex].hint;
   if (!hint) return;
   document.body.classList.add("focused-chat");
@@ -434,8 +538,8 @@ function handlePawHint() {
     chatForm.before(suggestions);
   }
   userMessage.value = hint.prompt;
-  addMessage("user", "讀者", hint.prompt);
-  addMessage("ai", roles[hint.role].shortName, callAI(hint.role, hint.prompt));
+  await submitQuestion(hint.prompt);
+  userMessage.value = "";
   userMessage.focus();
 }
 
@@ -522,13 +626,12 @@ characterCards.forEach((card) => {
   card.addEventListener("click", () => selectRole(card.dataset.role));
 });
 
-chatForm.addEventListener("submit", (event) => {
+chatForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const text = userMessage.value.trim();
   if (!text) return;
-  addMessage("user", "讀者", text);
-  addMessage("ai", roles[activeRole].shortName, callAI(activeRole, text));
   userMessage.value = "";
+  await submitQuestion(text);
 });
 
 clearChat.addEventListener("click", () => {
@@ -573,6 +676,7 @@ downloadCard?.addEventListener("click", () => {
 renderPage();
 bookImage.title = "點圖片左半邊回上一頁，點右半邊到下一頁";
 selectRole("lali");
+updateUsageStatus();
 
 const initialHash = window.location.hash.replace("#", "");
 if (["read", "chat"].includes(initialHash)) {
