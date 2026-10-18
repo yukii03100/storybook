@@ -409,6 +409,9 @@ function localRoleReply(role, userMessageText) {
 }
 
 const dailyLimit = Number(window.STORYBOOK_DAILY_LIMIT) || 10;
+const aiEndpoint = String(
+  window.STORYBOOK_AI_ENDPOINT || "https://storybook-ai.snow-0310-52.workers.dev"
+).replace(/\/$/, "");
 const usageStorageKey = "storybookAiDailyUsage";
 let isSending = false;
 
@@ -436,7 +439,7 @@ function updateUsageStatus(serverRemaining) {
     ? Math.max(0, serverRemaining)
     : Math.max(0, dailyLimit - readDailyUsage());
   if (!usageStatus) return;
-  usageStatus.textContent = window.STORYBOOK_AI_ENDPOINT
+  usageStatus.textContent = aiEndpoint
     ? `今天還可以問 ${remaining} 次`
     : "AI 連線設定中，目前使用內建角色回覆";
 }
@@ -452,15 +455,14 @@ function recentConversation() {
 }
 
 async function callAI(role, userMessageText) {
-  const endpoint = String(window.STORYBOOK_AI_ENDPOINT || "").replace(/\/$/, "");
-  if (!endpoint) return { text: localRoleReply(role, userMessageText), usedAI: false };
+  if (!aiEndpoint) return { text: localRoleReply(role, userMessageText), usedAI: false };
 
   const used = readDailyUsage();
   if (used >= dailyLimit) {
     return { text: `今天的 ${dailyLimit} 次 AI 對話已經用完了，明天再來找我聊聊吧！`, usedAI: false };
   }
 
-  const response = await fetch(`${endpoint}/chat`, {
+  const response = await fetch(`${aiEndpoint}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
