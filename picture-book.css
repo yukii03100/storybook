@@ -901,9 +901,27 @@ body.scan-mode .chat-window {
 }
 
 .active-role-portrait img {
-  left: -8%;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+.active-role-portrait[data-role="lali"] img {
+  left: 4%;
+  top: 4%;
+  width: 92%;
+}
+
+.active-role-portrait[data-role="aban"] img {
+  left: 8%;
+  top: 8%;
+  width: 84%;
+}
+
+.active-role-portrait[data-role="dog"] img {
+  left: -5%;
   top: -8%;
-  width: 116%;
+  width: 190%;
 }
 
 .usage-status {
