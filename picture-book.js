@@ -356,10 +356,10 @@ function selectRole(roleKey, greeting = true) {
   activeRoleName.textContent = roles[roleKey].name;
   activeRolePortrait.dataset.role = roleKey;
   activeRoleImage.src = roleKey === "lali"
-    ? "assets/optimized/character-lali-head.png?v=2"
+    ? "assets/optimized/character-lali-head.png?v=3"
     : roleKey === "aban"
-      ? "assets/optimized/character-aban-head.png?v=2"
-      : "assets/optimized/character-dog-head.png?v=2";
+      ? "assets/optimized/character-aban-head.png?v=3"
+      : "assets/optimized/character-dog-head.png?v=3";
   characterCards.forEach((card) => card.classList.toggle("active", card.dataset.role === roleKey));
   if (greeting) {
     addMessage("ai", roles[roleKey].shortName, roles[roleKey].intro);
