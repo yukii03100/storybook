@@ -52,7 +52,8 @@ export default {
     if (!role || !message) return json({ error: "請先輸入想問角色的問題。" }, 400, origin);
 
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-    const usageKey = `${taipeiDate()}:${ip}`;
+    // Each character has an independent daily allowance.
+    const usageKey = `${taipeiDate()}:${ip}:${role}`;
     const used = Number(await env.CHAT_LIMITS.get(usageKey)) || 0;
     if (used >= DAILY_LIMIT) return json({ error: `今天的 ${DAILY_LIMIT} 次 AI 對話已經用完了，明天再來聊聊吧！`, remaining: 0 }, 429, origin);
 

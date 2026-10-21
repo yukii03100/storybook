@@ -361,6 +361,7 @@ function selectRole(roleKey, greeting = true) {
       ? "assets/optimized/character-aban-head.png?v=3"
       : "assets/optimized/character-dog-head.png?v=3";
   characterCards.forEach((card) => card.classList.toggle("active", card.dataset.role === roleKey));
+  updateUsageStatus();
   if (greeting) {
     addMessage("ai", roles[roleKey].shortName, roles[roleKey].intro);
   }
@@ -412,16 +413,16 @@ const dailyLimit = Number(window.STORYBOOK_DAILY_LIMIT) || 10;
 const aiEndpoint = String(
   window.STORYBOOK_AI_ENDPOINT || "https://storybook-ai.snow-0310-52.workers.dev"
 ).replace(/\/$/, "");
-const usageStorageKey = "storybookAiDailyUsage";
+const usageStorageKey = (role) => `storybookAiDailyUsage:${role}`;
 let isSending = false;
 
 function todayKey() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei" }).format(new Date());
 }
 
-function readDailyUsage() {
+function readDailyUsage(role = activeRole) {
   try {
-    const saved = JSON.parse(localStorage.getItem(usageStorageKey) || "null");
+    const saved = JSON.parse(localStorage.getItem(usageStorageKey(role)) || "null");
     if (saved?.date === todayKey() && Number.isFinite(saved.count)) return saved.count;
   } catch {
     // 儲存資料損壞時重新計算即可。
@@ -429,15 +430,15 @@ function readDailyUsage() {
   return 0;
 }
 
-function writeDailyUsage(count) {
-  localStorage.setItem(usageStorageKey, JSON.stringify({ date: todayKey(), count }));
+function writeDailyUsage(role, count) {
+  localStorage.setItem(usageStorageKey(role), JSON.stringify({ date: todayKey(), count }));
   updateUsageStatus();
 }
 
 function updateUsageStatus(serverRemaining) {
   const remaining = Number.isFinite(serverRemaining)
     ? Math.max(0, serverRemaining)
-    : Math.max(0, dailyLimit - readDailyUsage());
+    : Math.max(0, dailyLimit - readDailyUsage(activeRole));
   if (!usageStatus) return;
   usageStatus.textContent = aiEndpoint
     ? `今天還可以問 ${remaining} 次`
@@ -457,7 +458,7 @@ function recentConversation() {
 async function callAI(role, userMessageText) {
   if (!aiEndpoint) return { text: localRoleReply(role, userMessageText), usedAI: false };
 
-  const used = readDailyUsage();
+  const used = readDailyUsage(role);
   if (used >= dailyLimit) {
     return { text: `今天的 ${dailyLimit} 次 AI 對話已經用完了，明天再來找我聊聊吧！`, usedAI: false };
   }
@@ -474,12 +475,12 @@ async function callAI(role, userMessageText) {
 
   const payload = await response.json().catch(() => ({}));
   if (response.status === 429) {
-    writeDailyUsage(dailyLimit);
+    writeDailyUsage(role, dailyLimit);
     return { text: payload.error || `今天的 ${dailyLimit} 次 AI 對話已經用完了，明天再來找我聊聊吧！`, usedAI: false, remaining: 0 };
   }
   if (!response.ok || !payload.reply) throw new Error(payload.error || "AI 暫時無法回覆");
 
-  writeDailyUsage(used + 1);
+  writeDailyUsage(role, used + 1);
   return { text: payload.reply, usedAI: true, remaining: payload.remaining };
 }
 
