@@ -1,6 +1,6 @@
 # 繪本 AI 後端部署
 
-這個 Cloudflare Worker 使用 Cloudflare Workers AI 的開源模型，並依 IP 與角色限制每人每天各 10 次對話（拉利 10 次、阿班 10 次、狗狗 10 次）。不需要 OpenAI API 金鑰。
+這個 Cloudflare Worker 使用 Cloudflare Workers AI 的開源模型，並依瀏覽器裝置與角色限制每天各 10 次對話（拉利 10 次、阿班 10 次、狗狗 10 次）。不需要 OpenAI API 金鑰。清除瀏覽器網站資料或改用無痕模式會產生新的裝置代碼。
 
 部署時需要：
 

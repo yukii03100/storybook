@@ -48,12 +48,17 @@ export default {
     }
 
     const role = ROLES[body.role] ? body.role : null;
+    const deviceId = typeof body.deviceId === "string" && /^[a-z0-9-]{16,80}$/i.test(body.deviceId)
+      ? body.deviceId
+      : null;
     const message = typeof body.message === "string" ? body.message.trim().slice(0, 300) : "";
     if (!role || !message) return json({ error: "請先輸入想問角色的問題。" }, 400, origin);
 
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-    // Each character has an independent daily allowance.
-    const usageKey = `${taipeiDate()}:${ip}:${role}`;
+    // Each browser device and character has an independent daily allowance.
+    // Older cached clients without a device ID temporarily fall back to IP.
+    const visitorKey = deviceId ? `device:${deviceId}` : `ip:${ip}`;
+    const usageKey = `${taipeiDate()}:${visitorKey}:${role}`;
     const used = Number(await env.CHAT_LIMITS.get(usageKey)) || 0;
     if (used >= DAILY_LIMIT) return json({ error: `今天的 ${DAILY_LIMIT} 次 AI 對話已經用完了，明天再來聊聊吧！`, remaining: 0 }, 429, origin);
 

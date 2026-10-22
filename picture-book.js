@@ -414,7 +414,18 @@ const aiEndpoint = String(
   window.STORYBOOK_AI_ENDPOINT || "https://storybook-ai.snow-0310-52.workers.dev"
 ).replace(/\/$/, "");
 const usageStorageKey = (role) => `storybookAiDailyUsage:${role}`;
+const deviceStorageKey = "storybookAiDeviceId";
 let isSending = false;
+
+function getDeviceId() {
+  let deviceId = localStorage.getItem(deviceStorageKey);
+  if (!deviceId) {
+    deviceId = globalThis.crypto?.randomUUID?.()
+      || `device-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    localStorage.setItem(deviceStorageKey, deviceId);
+  }
+  return deviceId;
+}
 
 function todayKey() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei" }).format(new Date());
@@ -468,6 +479,7 @@ async function callAI(role, userMessageText) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       role,
+      deviceId: getDeviceId(),
       message: userMessageText,
       history: recentConversation().slice(0, -1)
     })
