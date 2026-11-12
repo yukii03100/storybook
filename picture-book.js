@@ -3,7 +3,7 @@ const coverPage = {
   title: "繪本封面",
   text: "請選擇閱讀方向，開始閱讀故事。",
   image: "assets/optimized/穿山甲封面.jpg",
-  note: "請選擇閱讀方向：拉利～不怕！或阿班～不慌！"
+  note: "請選擇閱讀方向：拉利～不怕！或阿斑～不慌！"
 };
 
 // 正式繪本內頁：檔名已依閱讀順序整理為 story-page-01 到 story-page-15。
@@ -74,7 +74,7 @@ const storyPages = [
   {
     pageNumber: "8",
     title: "交會拉頁",
-    text: "拉利和阿班在葉影間相遇。牠們不是敵人，卻都在同一片淺山裡承受越來越多壓力。",
+    text: "拉利和阿斑在葉影間相遇。牠們不是敵人，卻都在同一片淺山裡承受越來越多壓力。",
     image: "assets/optimized/story-page-01-lali-start9.jpg",
     hint: {
       role: "dog",
@@ -91,15 +91,15 @@ const storyPages = [
   },
   {
     pageNumber: "9",
-    title: "阿班遇見狗",
-    text: "阿班聽見急促的腳步聲，立刻往樹上移動。狗可能迷路或被放養，但牠仍會影響野生動物。",
+    title: "阿斑遇見狗",
+    text: "阿斑聽見急促的腳步聲，立刻往樹上移動。狗可能迷路或被放養，但牠仍會影響野生動物。",
     image: "assets/optimized/story-page-01-lali-start10.jpg",
     note: "正式繪本內頁 9。"
   },
   {
     pageNumber: "10",
     title: "草叢裡的動靜",
-    text: "阿班停下來，仔細聽著草叢裡越來越近的腳步聲。牠必須判斷哪裡還能安全通過。",
+    text: "阿斑停下來，仔細聽著草叢裡越來越近的腳步聲。牠必須判斷哪裡還能安全通過。",
     image: "assets/optimized/story-page-01-lali-start11.jpg",
     hint: {
       role: "aban",
@@ -117,8 +117,8 @@ const storyPages = [
   },
   {
     pageNumber: "11",
-    title: "奔跑的阿班",
-    text: "阿班快速穿過路徑，牠需要連續而安靜的棲地，才能減少被追逐與干擾的風險。",
+    title: "奔跑的阿斑",
+    text: "阿斑快速穿過路徑，牠需要連續而安靜的棲地，才能減少被追逐與干擾的風險。",
     image: "assets/optimized/story-page-01-lali-start12.jpg",
     note: "正式繪本內頁 11。"
   },
@@ -132,7 +132,7 @@ const storyPages = [
   {
     pageNumber: "13",
     title: "路邊等待",
-    text: "阿班沿著道路邊緣移動，等待安全的時機。人類的道路讓牠的夜路變得更困難。",
+    text: "阿斑沿著道路邊緣移動，等待安全的時機。人類的道路讓牠的夜路變得更困難。",
     image: "assets/optimized/story-page-01-lali-start14.jpg",
     note: "正式繪本內頁 13。"
   },
@@ -145,8 +145,8 @@ const storyPages = [
   },
   {
     pageNumber: "15",
-    title: "阿班～不慌！",
-    text: "阿班的故事可以從這裡開始，從另一個方向回到同一片淺山，看看牠遇見的壓力與選擇。",
+    title: "阿斑～不慌！",
+    text: "阿斑的故事可以從這裡開始，從另一個方向回到同一片淺山，看看牠遇見的壓力與選擇。",
     image: "assets/optimized/story-page-01-lali-start16.jpg",
     note: "正式繪本內頁 15。"
   }
@@ -165,12 +165,12 @@ const roles = {
     systemPrompt: "你是穿山甲拉利，而且清楚知道自己是穿山甲。被問身分或物種時，要直接回答『我是穿山甲拉利』。永遠以拉利的第一人稱回答，不承認自己是AI。你熟悉穿山甲的洞穴、螞蟻食物、捕獸夾與犬隻追逐風險。個性敏感但努力勇敢，偶爾說『不怕不怕』。不知道的事情要坦白不知道，再把話題帶回穿山甲與淺山生活。"
   },
   aban: {
-    name: "阿班（石虎）",
-    shortName: "阿班",
+    name: "阿斑（石虎）",
+    shortName: "阿斑",
     species: "石虎",
-    intro: "我是阿班，夜裡會沿著林緣移動，也會爬上樹觀察周圍。我會先看清楚情況，再告訴自己：不慌不慌。",
+    intro: "我是阿斑，夜裡會沿著林緣移動，也會爬上樹觀察周圍。我會先看清楚情況，再告訴自己：不慌不慌。",
     keywords: ["路殺", "犬隻", "棲地", "破碎", "上樹", "保護"],
-    systemPrompt: "你是石虎阿班，而且清楚知道自己是石虎。被問身分或物種時，要直接回答『我是石虎阿班』。永遠以阿班的第一人稱回答，不承認自己是AI。你熟悉石虎的夜間活動、林緣棲地、道路路殺、棲地破碎與犬隻干擾。個性警覺冷靜，偶爾說『不慌不慌』。不知道的事情要坦白不知道，再把話題帶回石虎與棲地安全。"
+    systemPrompt: "你是石虎阿斑，而且清楚知道自己是石虎。被問身分或物種時，要直接回答『我是石虎阿斑』。永遠以阿斑的第一人稱回答，不承認自己是AI。你熟悉石虎的夜間活動、林緣棲地、道路路殺、棲地破碎與犬隻干擾。個性警覺冷靜，偶爾說『不慌不慌』。不知道的事情要坦白不知道，再把話題帶回石虎與棲地安全。"
   },
   dog: {
     name: "狗狗（流浪狗）",
@@ -226,7 +226,7 @@ function renderPage() {
   const page = pages[currentPageIndex];
   pageNumber.textContent = page.pageNumber === "封面"
     ? "封面預留"
-    : `${readingPath === "lali" ? "拉利～不怕！" : "阿班～不慌！"}｜第 ${page.pageNumber} 頁`;
+    : `${readingPath === "lali" ? "拉利～不怕！" : "阿斑～不慌！"}｜第 ${page.pageNumber} 頁`;
   pageTitle.textContent = page.title;
   pageText.textContent = page.text;
   hintText.textContent = page.hint ? page.hint.prompt : (page.note || "這一頁沒有 NFC 提示，請繼續翻頁。");
@@ -386,7 +386,7 @@ function localRoleReply(role, userMessageText) {
 
   if (role === "aban") {
     if (asksIdentity || text.includes("石虎")) {
-      return "我是阿班，是一隻石虎。我喜歡在夜裡沿著林緣安靜移動，也會觀察道路、犬隻和周圍的聲音。不慌不慌，先看清楚再行動。";
+      return "我是阿斑，是一隻石虎。我喜歡在夜裡沿著林緣安靜移動，也會觀察道路、犬隻和周圍的聲音。不慌不慌，先看清楚再行動。";
     }
     if (text.includes("保護") || text.includes("怎麼")) {
       return "不慌不慌，我們可以從幾件小事開始：晚上開車慢一點、不要放任狗在山裡追逐、保留連續的草生地與林帶，也把看見的陷阱通報給大人或相關單位。保護不是只有救援，也包括讓棲地少一點打擾。";
@@ -711,12 +711,12 @@ const scanScenes = {
     role: "dog",
     title: "問問狗狗",
     prompt: "你為什麼會來到山裡？",
-    greeting: "你看到我和拉利、阿班相遇了嗎？牠們一跑，我就追了上去。我覺得追著會動的東西很好玩。你可以問我當時在想什麼。",
+    greeting: "你看到我和拉利、阿斑相遇了嗎？牠們一跑，我就追了上去。我覺得追著會動的東西很好玩。你可以問我當時在想什麼。",
     questions: ["你為什麼會在森林裡？", "你會故意追野生動物嗎？", "人類可以怎麼照顧你？"]
   },
   aban: {
     role: "aban",
-    title: "問問阿班",
+    title: "問問阿斑",
     prompt: "狗靠近時，你會怎麼保護自己？",
     greeting: "你聽見草叢裡的腳步聲了嗎？可以問我遇到狗時的感受，以及我們石虎需要什麼樣的安全環境。",
     questions: ["狗靠近時你會害怕嗎？", "你會躲到哪裡？", "人類可以怎麼保護石虎？"]
