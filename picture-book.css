@@ -575,10 +575,58 @@ main {
 
 .chat-window {
   display: grid;
-  grid-template-rows: auto minmax(340px, 1fr) auto;
+  grid-template-rows: auto auto minmax(340px, 1fr) auto;
   min-height: 610px;
   overflow: hidden;
 }
+
+.research-consent {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(140px, 0.42fr) minmax(220px, 0.8fr);
+  align-items: center;
+  gap: 0.65rem 1rem;
+  padding: 0.75rem 1.2rem;
+  border-bottom: 1px solid var(--line);
+  background: #fffaf0;
+}
+
+.research-consent small,
+.research-consent label span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.research-consent input[type="text"] {
+  width: 100%;
+  min-height: 2.35rem;
+  padding: 0 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  text-transform: uppercase;
+}
+
+.research-consent .consent-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.research-consent .consent-check span {
+  color: var(--ink);
+  font-size: 0.84rem;
+}
+
+.consent-status {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.consent-status[data-state="on"] { color: var(--forest); }
+.consent-status[data-state="error"] { color: #9b2c2c; }
 
 .chat-top {
   display: flex;
@@ -645,6 +693,14 @@ main {
 .chat-form input {
   min-height: 2.75rem;
   padding: 0 0.9rem;
+}
+
+@media (max-width: 760px) {
+  .research-consent {
+    grid-template-columns: 1fr;
+  }
+
+  .consent-status { grid-column: 1; }
 }
 
 .action-layout {

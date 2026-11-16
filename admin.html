@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>研究對話後台｜淺山夜路</title>
+  <link rel="stylesheet" href="picture-book.css">
+  <style>
+    body { min-height: 100vh; background: #f3efe5; }
+    .admin-shell { width: min(1180px, calc(100% - 2rem)); margin: 2rem auto; }
+    .admin-panel { padding: 1.25rem; border: 1px solid #d9d0c2; border-radius: 12px; background: white; box-shadow: 0 12px 36px rgba(20,33,61,.09); }
+    .admin-tools { display: grid; grid-template-columns: minmax(180px,1fr) 150px 150px auto auto; gap: .7rem; align-items: end; }
+    .admin-tools label { display: grid; gap: .35rem; font-weight: 800; }
+    .admin-tools input, .admin-tools select { min-height: 2.65rem; padding: 0 .7rem; border: 1px solid #d9d0c2; border-radius: 8px; }
+    .admin-status { min-height: 1.5rem; color: #62594f; }
+    .table-wrap { margin-top: 1rem; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: .7rem; border-bottom: 1px solid #e4ddd2; text-align: left; vertical-align: top; }
+    th { position: sticky; top: 0; background: #f8f3e8; }
+    td:nth-child(5), td:nth-child(6) { min-width: 260px; white-space: pre-wrap; }
+    @media (max-width: 800px) { .admin-tools { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="admin-shell">
+    <header><p class="eyebrow">研究管理</p><h1>AI 對話紀錄後台</h1><p>只顯示參與者已勾選同意保存的對話。管理密碼只暫存在這個瀏覽器分頁。</p></header>
+    <section class="admin-panel">
+      <form id="adminFilters" class="admin-tools">
+        <label>管理密碼<input id="adminToken" type="password" required autocomplete="current-password"></label>
+        <label>參與者<input id="filterParticipant" type="text" maxlength="3" placeholder="全部或 P01"></label>
+        <label>角色<select id="filterRole"><option value="">全部</option><option value="lali">拉利</option><option value="aban">阿斑</option><option value="dog">狗狗</option></select></label>
+        <button class="primary-btn" type="submit">查詢</button>
+        <button id="exportCsv" class="icon-btn" type="button">匯出 CSV</button>
+      </form>
+      <p id="adminStatus" class="admin-status" aria-live="polite">請輸入管理密碼後查詢。</p>
+      <div class="table-wrap"><table><thead><tr><th>ID</th><th>參與者</th><th>角色</th><th>問題類型</th><th>讀者問題</th><th>AI 回答</th><th>時間</th></tr></thead><tbody id="logRows"></tbody></table></div>
+    </section>
+  </main>
+  <script src="ai-config.js"></script>
+  <script src="admin.js?v=20261116-1"></script>
+</body>
+</html>

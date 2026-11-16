@@ -2,7 +2,9 @@ const DAILY_LIMIT = 10;
 const ALLOWED_ORIGINS = new Set([
   "https://yukii03100.github.io",
   "http://localhost:8000",
-  "http://127.0.0.1:8000"
+  "http://127.0.0.1:8000",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500"
 ]);
 
 const ROLES = {
@@ -14,8 +16,8 @@ const ROLES = {
 function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": ALLOWED_ORIGINS.has(origin) ? origin : "https://yukii03100.github.io",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Vary": "Origin"
   };
 }
@@ -31,32 +33,72 @@ function taipeiDate() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei" }).format(new Date());
 }
 
+function isAdmin(request, env) {
+  return Boolean(env.ADMIN_TOKEN) && (request.headers.get("Authorization") || "") === `Bearer ${env.ADMIN_TOKEN}`;
+}
+
+function csvCell(value) {
+  return `"${String(value ?? "").replaceAll('"', '""')}"`;
+}
+
+async function adminLogs(request, env, origin) {
+  if (!isAdmin(request, env)) return json({ error: "管理密碼不正確。" }, 401, origin);
+  if (!env.DB) return json({ error: "D1 資料庫尚未綁定。" }, 503, origin);
+  const url = new URL(request.url);
+  const participant = (url.searchParams.get("participant") || "").trim().toUpperCase();
+  const role = url.searchParams.get("role") || "";
+  const limit = Math.min(500, Math.max(1, Number(url.searchParams.get("limit")) || 100));
+  const clauses = [];
+  const values = [];
+  if (/^P\d{2}$/.test(participant)) { clauses.push("participant_code = ?"); values.push(participant); }
+  if (ROLES[role]) { clauses.push("role = ?"); values.push(role); }
+  const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
+  const result = await env.DB.prepare(
+    `SELECT id, participant_code, role, question_type, user_message, ai_reply, created_at FROM chat_logs ${where} ORDER BY id DESC LIMIT ?`
+  ).bind(...values, limit).all();
+  return json({ rows: result.results || [] }, 200, origin);
+}
+
+async function exportCsv(request, env, origin) {
+  if (!isAdmin(request, env)) return json({ error: "管理密碼不正確。" }, 401, origin);
+  if (!env.DB) return json({ error: "D1 資料庫尚未綁定。" }, 503, origin);
+  const result = await env.DB.prepare("SELECT id, participant_code, role, question_type, user_message, ai_reply, created_at FROM chat_logs ORDER BY id").all();
+  const header = ["id", "participant_code", "role", "question_type", "user_message", "ai_reply", "created_at"];
+  const lines = [header.map(csvCell).join(",")];
+  for (const row of result.results || []) lines.push(header.map((key) => csvCell(row[key])).join(","));
+  return new Response(`\uFEFF${lines.join("\r\n")}`, {
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="storybook-chat-${taipeiDate()}.csv"`,
+      ...corsHeaders(origin)
+    }
+  });
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
     const url = new URL(request.url);
+    if (url.pathname === "/admin/logs" && request.method === "GET") return adminLogs(request, env, origin);
+    if (url.pathname === "/admin/export.csv" && request.method === "GET") return exportCsv(request, env, origin);
     if (url.pathname !== "/chat" || request.method !== "POST") return json({ error: "Not found" }, 404, origin);
     if (!ALLOWED_ORIGINS.has(origin)) return json({ error: "不允許的網站來源。" }, 403, origin);
     if (!env.AI || !env.CHAT_LIMITS) return json({ error: "AI 服務尚未完成設定。" }, 503, origin);
 
     let body;
-    try {
-      body = await request.json();
-    } catch {
-      return json({ error: "問題格式不正確。" }, 400, origin);
-    }
-
+    try { body = await request.json(); } catch { return json({ error: "問題格式不正確。" }, 400, origin); }
     const role = ROLES[body.role] ? body.role : null;
-    const deviceId = typeof body.deviceId === "string" && /^[a-z0-9-]{16,80}$/i.test(body.deviceId)
-      ? body.deviceId
-      : null;
+    const deviceId = typeof body.deviceId === "string" && /^[a-z0-9-]{16,80}$/i.test(body.deviceId) ? body.deviceId : null;
     const message = typeof body.message === "string" ? body.message.trim().slice(0, 300) : "";
+    const consentToSave = body.consentToSave === true;
+    const participantCode = typeof body.participantCode === "string" ? body.participantCode.trim().toUpperCase() : "";
+    const questionType = body.questionType === "preset" ? "preset" : "free";
     if (!role || !message) return json({ error: "請先輸入想問角色的問題。" }, 400, origin);
+    if (consentToSave && !/^P\d{2}$/.test(participantCode)) return json({ error: "參與者代碼格式不正確。" }, 400, origin);
+    if (consentToSave && !env.DB) return json({ error: "研究紀錄資料庫尚未完成設定，這次未送出。" }, 503, origin);
 
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-    // Each browser device and character has an independent daily allowance.
-    // Older cached clients without a device ID temporarily fall back to IP.
     const visitorKey = deviceId ? `device:${deviceId}` : `ip:${ip}`;
     const usageKey = `${taipeiDate()}:${visitorKey}:${role}`;
     const used = Number(await env.CHAT_LIMITS.get(usageKey)) || 0;
@@ -68,15 +110,11 @@ export default {
           content: String(item.content || "").slice(0, 300)
         })).filter((item) => item.content)
       : [];
-
     let payload;
     try {
       payload = await env.AI.run(env.AI_MODEL || "@cf/meta/llama-3.1-8b-instruct-fp8", {
         messages: [
-          {
-            role: "system",
-            content: `${ROLES[role]} 若孩子提到立即危險、受傷或捕獸夾，請先請他找身邊的大人協助，不要指示孩子自行接近或處理。`
-          },
+          { role: "system", content: `${ROLES[role]} 若孩子提到立即危險、受傷或捕獸夾，請先請他找身邊的大人協助，不要指示孩子自行接近或處理。` },
           ...history,
           { role: "user", content: message }
         ],
@@ -87,12 +125,15 @@ export default {
       console.error("Workers AI error", error?.message || "unknown");
       return json({ error: "角色現在有點忙，請稍後再試。" }, 502, origin);
     }
-
     const reply = typeof payload?.response === "string" ? payload.response.trim() : "";
     if (!reply) return json({ error: "角色現在想不到回答，請換個方式問問看。" }, 502, origin);
-
+    if (consentToSave) {
+      await env.DB.prepare(
+        "INSERT INTO chat_logs (participant_code, role, question_type, user_message, ai_reply, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+      ).bind(participantCode, role, questionType, message, reply, new Date().toISOString()).run();
+    }
     const nextUsed = used + 1;
     await env.CHAT_LIMITS.put(usageKey, String(nextUsed), { expirationTtl: 172800 });
-    return json({ reply, remaining: Math.max(0, DAILY_LIMIT - nextUsed) }, 200, origin);
+    return json({ reply, remaining: Math.max(0, DAILY_LIMIT - nextUsed), saved: consentToSave }, 200, origin);
   }
 };

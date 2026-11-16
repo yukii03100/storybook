@@ -116,6 +116,21 @@
             </div>
             <button id="clearChat" class="icon-btn" type="button" title="清空對話">清空</button>
           </div>
+          <div class="research-consent" aria-labelledby="researchConsentTitle">
+            <div>
+              <strong id="researchConsentTitle">研究對話紀錄</strong>
+              <small>若你是研究參與者，輸入代碼並同意後，這次與角色的問答才會保存。</small>
+            </div>
+            <label>
+              <span>參與者代碼</span>
+              <input id="participantCode" type="text" inputmode="text" maxlength="3" placeholder="例如 P01" autocomplete="off">
+            </label>
+            <label class="consent-check">
+              <input id="consentToSave" type="checkbox">
+              <span>我同意保存本次對話供研究分析</span>
+            </label>
+            <p id="consentStatus" class="consent-status" aria-live="polite"></p>
+          </div>
           <div id="chatMessages" class="chat-messages" aria-live="polite"></div>
           <form id="chatForm" class="chat-form">
             <label for="userMessage" class="sr-only">輸入想問角色的問題</label>
@@ -133,7 +148,7 @@
   </footer>
 
   <script src="ai-config.js?v=20261018-2"></script>
-  <script src="picture-book.js?v=20261022-1"></script>
+  <script src="picture-book.js?v=20261116-1"></script>
   <script>
     document.querySelector('[data-view="action"]')?.remove();
     document.querySelector('#action')?.remove();

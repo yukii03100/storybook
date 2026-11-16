@@ -209,6 +209,9 @@ const chatMessages = document.querySelector("#chatMessages");
 const chatForm = document.querySelector("#chatForm");
 const userMessage = document.querySelector("#userMessage");
 const clearChat = document.querySelector("#clearChat");
+const participantCode = document.querySelector("#participantCode");
+const consentToSave = document.querySelector("#consentToSave");
+const consentStatus = document.querySelector("#consentStatus");
 const actionForm = document.querySelector("#actionForm");
 const conservationCard = document.querySelector("#conservationCard");
 const downloadCard = document.querySelector("#downloadCard");
@@ -416,6 +419,31 @@ const aiEndpoint = String(
 const usageStorageKey = (role) => `storybookAiDailyUsage:${role}`;
 const deviceStorageKey = "storybookAiDeviceId";
 let isSending = false;
+let nextQuestionType = "free";
+
+function researchSettings() {
+  const code = participantCode?.value.trim().toUpperCase() || "";
+  const consent = Boolean(consentToSave?.checked);
+  return {
+    participantCode: /^P\d{2}$/.test(code) ? code : "",
+    consentToSave: consent
+  };
+}
+
+function updateConsentStatus() {
+  if (!consentStatus) return;
+  const { participantCode: code, consentToSave: consent } = researchSettings();
+  if (!consent) {
+    consentStatus.textContent = "目前不保存對話。";
+    consentStatus.dataset.state = "off";
+  } else if (!code) {
+    consentStatus.textContent = "請輸入 P01 這類三碼參與者代碼。";
+    consentStatus.dataset.state = "error";
+  } else {
+    consentStatus.textContent = `將以 ${code} 保存對話；不記錄姓名。`;
+    consentStatus.dataset.state = "on";
+  }
+}
 
 function getDeviceId() {
   let deviceId = localStorage.getItem(deviceStorageKey);
@@ -466,12 +494,17 @@ function recentConversation() {
     .filter((item) => item.content);
 }
 
-async function callAI(role, userMessageText) {
+async function callAI(role, userMessageText, questionType = "free") {
   if (!aiEndpoint) return { text: localRoleReply(role, userMessageText), usedAI: false };
 
   const used = readDailyUsage(role);
   if (used >= dailyLimit) {
     return { text: `今天的 ${dailyLimit} 次 AI 對話已經用完了，明天再來找我聊聊吧！`, usedAI: false };
+  }
+
+  const research = researchSettings();
+  if (research.consentToSave && !research.participantCode) {
+    throw new Error("請先輸入正確的參與者代碼（例如 P01），或取消勾選研究紀錄。 ");
   }
 
   const response = await fetch(`${aiEndpoint}/chat`, {
@@ -481,7 +514,9 @@ async function callAI(role, userMessageText) {
       role,
       deviceId: getDeviceId(),
       message: userMessageText,
-      history: recentConversation().slice(0, -1)
+      history: recentConversation().slice(0, -1),
+      questionType,
+      ...research
     })
   });
 
@@ -496,8 +531,14 @@ async function callAI(role, userMessageText) {
   return { text: payload.reply, usedAI: true, remaining: payload.remaining };
 }
 
-async function submitQuestion(text) {
+async function submitQuestion(text, questionType = "free") {
   if (isSending || !text.trim()) return;
+  const research = researchSettings();
+  if (research.consentToSave && !research.participantCode) {
+    updateConsentStatus();
+    participantCode?.focus();
+    return;
+  }
   isSending = true;
   chatForm.classList.add("is-busy");
   userMessage.disabled = true;
@@ -512,7 +553,7 @@ async function submitQuestion(text) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 
   try {
-    const result = await callAI(roleAtSend, text.trim());
+    const result = await callAI(roleAtSend, text.trim(), questionType);
     thinking.remove();
     addMessage("ai", roles[roleAtSend].shortName, result.text);
     updateUsageStatus(result.remaining);
@@ -546,6 +587,7 @@ async function handlePawHint() {
       button.textContent = question;
       button.addEventListener("click", () => {
         userMessage.value = question;
+        nextQuestionType = "preset";
         userMessage.focus();
       });
       suggestions.appendChild(button);
@@ -553,7 +595,7 @@ async function handlePawHint() {
     chatForm.before(suggestions);
   }
   userMessage.value = hint.prompt;
-  await submitQuestion(hint.prompt);
+  await submitQuestion(hint.prompt, "preset");
   userMessage.value = "";
   userMessage.focus();
 }
@@ -646,7 +688,20 @@ chatForm.addEventListener("submit", async (event) => {
   const text = userMessage.value.trim();
   if (!text) return;
   userMessage.value = "";
-  await submitQuestion(text);
+  const questionType = nextQuestionType;
+  nextQuestionType = "free";
+  await submitQuestion(text, questionType);
+});
+
+participantCode?.addEventListener("input", () => {
+  participantCode.value = participantCode.value.toUpperCase().replace(/[^P0-9]/g, "").slice(0, 3);
+  sessionStorage.setItem("storybookParticipantCode", participantCode.value);
+  updateConsentStatus();
+});
+
+consentToSave?.addEventListener("change", updateConsentStatus);
+userMessage?.addEventListener("input", () => {
+  nextQuestionType = "free";
 });
 
 clearChat.addEventListener("click", () => {
@@ -692,6 +747,8 @@ renderPage();
 bookImage.title = "點圖片左半邊回上一頁，點右半邊到下一頁";
 selectRole("lali");
 updateUsageStatus();
+if (participantCode) participantCode.value = sessionStorage.getItem("storybookParticipantCode") || "";
+updateConsentStatus();
 
 const initialHash = window.location.hash.replace("#", "");
 if (["read", "chat"].includes(initialHash)) {
@@ -747,6 +804,7 @@ if (scanParams.get("mode") === "scan") {
     button.textContent = question;
     button.addEventListener("click", () => {
       userMessage.value = question;
+      nextQuestionType = "preset";
       userMessage.focus();
     });
     suggestions.appendChild(button);
