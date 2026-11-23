@@ -112,20 +112,26 @@ export default {
       : [];
     let payload;
     try {
-      payload = await env.AI.run(env.AI_MODEL || "@cf/meta/llama-3.1-8b-instruct-fp8", {
+      payload = await env.AI.run(env.AI_MODEL || "@cf/qwen/qwen3.8-27b", {
         messages: [
           { role: "system", content: `${ROLES[role]} 若孩子提到立即危險、受傷或捕獸夾，請先請他找身邊的大人協助，不要指示孩子自行接近或處理。` },
           ...history,
           { role: "user", content: message }
         ],
-        max_tokens: 180,
+        max_completion_tokens: 180,
+        reasoning_effort: "low",
         temperature: 0.6
       });
     } catch (error) {
       console.error("Workers AI error", error?.message || "unknown");
       return json({ error: "角色現在有點忙，請稍後再試。" }, 502, origin);
     }
-    const reply = typeof payload?.response === "string" ? payload.response.trim() : "";
+    const rawReply = payload?.response
+      ?? payload?.choices?.[0]?.message?.content
+      ?? payload?.result?.response
+      ?? payload?.result?.choices?.[0]?.message?.content
+      ?? "";
+    const reply = typeof rawReply === "string" ? rawReply.trim() : "";
     if (!reply) return json({ error: "角色現在想不到回答，請換個方式問問看。" }, 502, origin);
     if (consentToSave) {
       await env.DB.prepare(

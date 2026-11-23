@@ -7,7 +7,7 @@ binding = "CHAT_LIMITS"
 id = "部署時由 Cloudflare 產生的 KV namespace ID"
 
 [vars]
-AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
+AI_MODEL = "@cf/qwen/qwen3.8-27b"
 
 [ai]
 binding = "AI"
